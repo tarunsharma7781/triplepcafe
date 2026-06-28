@@ -199,58 +199,33 @@ useGLTF.preload("/cup_of_cappuccino.glb");
 
 export function Experience3D() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(false);
 
   useEffect(() => {
-    console.log("[Experience3D] Component mounted");
+    console.log("[Experience3D] Mounted");
     const el = containerRef.current;
-    if (!el) return;
-
-    const check = () => {
-      const rect = el.getBoundingClientRect();
-      console.log("[Experience3D] Container rect:", JSON.stringify({ top: Math.round(rect.top), height: Math.round(rect.height), width: Math.round(rect.width) }));
-      if (rect.top < window.innerHeight * 1.1) {
-        console.log("[Experience3D] In view — mounting Canvas");
-        setInView(true);
-        window.removeEventListener("scroll", check, true);
-      }
-    };
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        console.log("[Experience3D] IntersectionObserver fired, isIntersecting:", entry.isIntersecting);
-        if (entry.isIntersecting) setInView(true);
-      },
-      { threshold: 0.01, rootMargin: "200px" }
-    );
-    observer.observe(el);
-    window.addEventListener("scroll", check, { passive: true, capture: true });
-    check();
-
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("scroll", check, true);
-    };
+    if (!el) { console.log("[Experience3D] containerRef is NULL"); return; }
+    const rect = el.getBoundingClientRect();
+    console.log("[Experience3D] Container rect:", JSON.stringify({ top: Math.round(rect.top), height: Math.round(rect.height), width: Math.round(rect.width) }));
+    const style = window.getComputedStyle(el);
+    console.log("[Experience3D] Computed display:", style.display, "visibility:", style.visibility, "opacity:", style.opacity, "overflow:", style.overflow);
   }, []);
 
   useEffect(() => {
-    if (!inView) return;
+    const el = containerRef.current;
+    if (!el) return;
     const onMove = (e: MouseEvent) => {
-      const el = containerRef.current;
-      if (!el) return;
       const rect = el.getBoundingClientRect();
       mouse.x = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
       mouse.y = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
     };
     const onLeave = () => gsap.to(mouse, { x: 0, y: 0, duration: 1.5, ease: "power3.out" });
-    const el = containerRef.current;
-    el?.addEventListener("mousemove", onMove);
-    el?.addEventListener("mouseleave", onLeave);
+    el.addEventListener("mousemove", onMove);
+    el.addEventListener("mouseleave", onLeave);
     return () => {
-      el?.removeEventListener("mousemove", onMove);
-      el?.removeEventListener("mouseleave", onLeave);
+      el.removeEventListener("mousemove", onMove);
+      el.removeEventListener("mouseleave", onLeave);
     };
-  }, [inView]);
+  }, []);
 
   return (
     <section id="experience" className="relative min-h-screen overflow-hidden bg-espresso-950">
@@ -289,35 +264,32 @@ export function Experience3D() {
               }}
             />
 
-            {inView ? (
-              <Canvas
-                camera={{ position: [0, 0.4, 3.8], fov: 42 }}
-                dpr={Math.min(typeof window !== "undefined" ? window.devicePixelRatio : 1, 2)}
-                gl={{
-                  antialias: true,
-                  alpha: true,
-                  powerPreference: "default",
-                  preserveDrawingBuffer: false,
-                  failIfMajorPerformanceCaveat: false,
-                }}
-                onCreated={({ gl }) => {
-                  console.log("[R3F] Canvas created, size:", gl.domElement.width, "x", gl.domElement.height);
-                }}
-                style={{
-                  background: "transparent",
-                  position: "absolute",
-                  top: 0, left: 0,
-                  width: "100%", height: "100%",
-                  display: "block",
-                }}
-              >
-                <Scene />
-              </Canvas>
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="h-8 w-8 animate-pulse rounded-full border border-gold-500/30" />
-              </div>
-            )}
+            <Canvas
+              camera={{ position: [0, 0.4, 3.8], fov: 42 }}
+              dpr={Math.min(typeof window !== "undefined" ? window.devicePixelRatio : 1, 2)}
+              gl={{
+                antialias: true,
+                alpha: true,
+                powerPreference: "default",
+                preserveDrawingBuffer: false,
+                failIfMajorPerformanceCaveat: false,
+              }}
+              onCreated={({ gl }) => {
+                console.log("[R3F] Canvas created, size:", gl.domElement.width, "x", gl.domElement.height);
+                console.log("[R3F] Canvas DOM element:", gl.domElement.style.cssText);
+                const cs = window.getComputedStyle(gl.domElement);
+                console.log("[R3F] Canvas computed w/h:", cs.width, cs.height, "display:", cs.display, "visibility:", cs.visibility);
+              }}
+              style={{
+                background: "transparent",
+                position: "absolute",
+                top: 0, left: 0,
+                width: "100%", height: "100%",
+                display: "block",
+              }}
+            >
+              <Scene />
+            </Canvas>
 
             <div className="pointer-events-none absolute bottom-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
               <p className="text-[9px] tracking-[0.45em] text-beige-300/40 uppercase whitespace-nowrap">
