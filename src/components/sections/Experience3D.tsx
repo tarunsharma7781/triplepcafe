@@ -181,14 +181,32 @@ export function Experience3D() {
   const [inView, setInView] = useState(false);
 
   useEffect(() => {
+    // On mobile Lenis can prevent IntersectionObserver from firing
+    // Use a simple scroll listener as fallback
     const el = containerRef.current;
     if (!el) return;
+
+    const check = () => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight * 1.1) {
+        setInView(true);
+        window.removeEventListener("scroll", check, true);
+      }
+    };
+
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) setInView(true); },
-      { threshold: 0.1 }
+      { threshold: 0.01, rootMargin: "200px" }
     );
     observer.observe(el);
-    return () => observer.disconnect();
+    window.addEventListener("scroll", check, { passive: true, capture: true });
+    // Also check immediately in case already in view
+    check();
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", check, true);
+    };
   }, []);
 
   useEffect(() => {
@@ -232,14 +250,17 @@ export function Experience3D() {
           </p>
         </div>
 
-        <div ref={containerRef} className="relative h-[50vh] flex-1 lg:h-[70vh]">
+        <div ref={containerRef} className="relative flex-1" style={{ height: "clamp(300px, 50vh, 70vh)" }}>
           {/* Outer glass container */}
-          <div className="absolute inset-0 rounded-3xl overflow-hidden"
+          <div
+            className="absolute inset-0 rounded-3xl"
             style={{
               background: "linear-gradient(135deg, rgba(201,169,98,0.06) 0%, rgba(26,22,18,0.4) 50%, rgba(10,8,6,0.7) 100%)",
               backdropFilter: "blur(32px)",
               border: "1px solid rgba(201,169,98,0.12)",
               boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04), 0 32px 80px rgba(0,0,0,0.5)",
+              overflow: "hidden",
+              borderRadius: "1.5rem",
             }}
           >
             {/* Golden glow behind cup */}
@@ -254,15 +275,33 @@ export function Experience3D() {
             />
 
             {inView ? (
-            <Canvas
-              camera={{ position: [0, 0.4, 3.8], fov: 42 }}
-              dpr={1}
-              gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
-              style={{ background: "transparent", width: "100%", height: "100%", position: "absolute", inset: 0 }}
-            >
-              <Scene />
-            </Canvas>
-            ) : null}
+              <Canvas
+                camera={{ position: [0, 0.4, 3.8], fov: 42 }}
+                dpr={Math.min(typeof window !== "undefined" ? window.devicePixelRatio : 1, 2)}
+                gl={{
+                  antialias: true,
+                  alpha: true,
+                  powerPreference: "default",
+                  preserveDrawingBuffer: false,
+                  failIfMajorPerformanceCaveat: false,
+                }}
+                style={{
+                  background: "transparent",
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  display: "block",
+                }}
+              >
+                <Scene />
+              </Canvas>
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="h-8 w-8 animate-pulse rounded-full border border-gold-500/30" />
+              </div>
+            )}
 
             {/* Bottom hint text */}
             <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none">
