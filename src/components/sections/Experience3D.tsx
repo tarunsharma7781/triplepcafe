@@ -244,16 +244,24 @@ export function Experience3D() {
         </div>
 
         <div ref={containerRef} className="relative flex-1" style={{ height: "clamp(300px, 50vh, 70vh)" }}>
+          {/* Glass effect as separate layer BEHIND canvas — fixes Android Chrome WebGL + backdrop-filter bug */}
           <div
             className="absolute inset-0 rounded-3xl"
             style={{
               background: "linear-gradient(135deg, rgba(201,169,98,0.06) 0%, rgba(26,22,18,0.4) 50%, rgba(10,8,6,0.7) 100%)",
               backdropFilter: "blur(32px)",
+              WebkitBackdropFilter: "blur(32px)",
               border: "1px solid rgba(201,169,98,0.12)",
               boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04), 0 32px 80px rgba(0,0,0,0.5)",
-              overflow: "hidden",
               borderRadius: "1.5rem",
+              zIndex: 0,
             }}
+          />
+
+          {/* Canvas rendered in its own stacking context — NOT inside backdrop-filter parent */}
+          <div
+            className="absolute inset-0 rounded-3xl"
+            style={{ overflow: "hidden", borderRadius: "1.5rem", zIndex: 1 }}
           >
             <div
               className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
@@ -261,6 +269,7 @@ export function Experience3D() {
                 width: "55%", height: "55%",
                 background: "radial-gradient(circle, rgba(201,169,98,0.22) 0%, rgba(201,169,98,0.08) 40%, transparent 70%)",
                 filter: "blur(40px)",
+                zIndex: 0,
               }}
             />
 
@@ -276,9 +285,8 @@ export function Experience3D() {
               }}
               onCreated={({ gl }) => {
                 console.log("[R3F] Canvas created, size:", gl.domElement.width, "x", gl.domElement.height);
-                console.log("[R3F] Canvas DOM element:", gl.domElement.style.cssText);
                 const cs = window.getComputedStyle(gl.domElement);
-                console.log("[R3F] Canvas computed w/h:", cs.width, cs.height, "display:", cs.display, "visibility:", cs.visibility);
+                console.log("[R3F] Canvas computed w/h:", cs.width, cs.height);
               }}
               style={{
                 background: "transparent",
@@ -286,12 +294,13 @@ export function Experience3D() {
                 top: 0, left: 0,
                 width: "100%", height: "100%",
                 display: "block",
+                zIndex: 1,
               }}
             >
               <Scene />
             </Canvas>
 
-            <div className="pointer-events-none absolute bottom-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+            <div className="pointer-events-none absolute bottom-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2" style={{ zIndex: 2 }}>
               <p className="text-[9px] tracking-[0.45em] text-beige-300/40 uppercase whitespace-nowrap">
                 Move your cursor to explore craftsmanship
               </p>
