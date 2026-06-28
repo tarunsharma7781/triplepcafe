@@ -182,6 +182,9 @@ function Scene() {
         rotateSpeed={0.7}
         minPolarAngle={Math.PI / 6}
         maxPolarAngle={Math.PI / 1.8}
+        minDistance={3.8}
+        maxDistance={3.8}
+        target={[0, 0, 0]}
         makeDefault
       />
       <GoldenGlow />
@@ -289,7 +292,7 @@ export function Experience3D() {
                 console.log("[R3F] Canvas computed w/h:", cs.width, cs.height);
               }}
               style={{
-                background: "red",
+                background: "transparent",
                 position: "absolute",
                 top: 0, left: 0,
                 width: "100%", height: "100%",
