@@ -31,10 +31,20 @@ function DebugRenderer() {
 function DebugCube() {
   useEffect(() => { console.log("[R3F] DebugCube mounted"); }, []);
   return (
-    <mesh position={[0, 1.5, 0]}>
-      <boxGeometry args={[0.5, 0.5, 0.5]} />
-      <meshStandardMaterial color="#ff0000" />
-    </mesh>
+    <>
+      <mesh position={[0, 0, 0]}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshBasicMaterial color="#ff0000" />
+      </mesh>
+      <mesh position={[1.5, 0, 0]}>
+        <sphereGeometry args={[0.5, 16, 16]} />
+        <meshBasicMaterial color="#00ff00" />
+      </mesh>
+      <mesh position={[-1.5, 0, 0]}>
+        <sphereGeometry args={[0.5, 16, 16]} />
+        <meshBasicMaterial color="#0000ff" />
+      </mesh>
+    </>
   );
 }
 
@@ -287,6 +297,7 @@ export function Experience3D() {
                 failIfMajorPerformanceCaveat: false,
               }}
               onCreated={({ gl }) => {
+                gl.setClearColor(0x1a1612, 1);
                 console.log("[R3F] Canvas created, size:", gl.domElement.width, "x", gl.domElement.height);
                 const cs = window.getComputedStyle(gl.domElement);
                 console.log("[R3F] Canvas computed w/h:", cs.width, cs.height);
