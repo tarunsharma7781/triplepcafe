@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useMemo, useEffect, useState } from "react";
+import { useRef, useMemo, useEffect, useState, Suspense } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { ContactShadows, Float, useGLTF, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
@@ -129,13 +129,12 @@ function Beans() {
   return (
     <group ref={groupRef}>
       {beans.map((b, i) => (
-        <mesh key={i} scale={b.scale} castShadow>
+        <mesh key={i} scale={b.scale}>
           <sphereGeometry args={[1, 12, 8]} />
-          <meshPhysicalMaterial
+          <meshStandardMaterial
             color="#2a1506"
             roughness={0.55}
             metalness={0.08}
-            clearcoat={0.4}
           />
         </mesh>
       ))}
@@ -156,7 +155,7 @@ function GoldenGlow() {
 
 function Scene() {
   return (
-    <>
+    <Suspense fallback={null}>
       <OrbitControls
         enableZoom={false}
         enablePan={false}
@@ -172,7 +171,7 @@ function Scene() {
       <Steam />
       <Beans />
       <ContactShadows position={[0, -0.68, 0]} opacity={0.5} scale={4} blur={2} far={2} color="#0a0806" frames={1} />
-    </>
+    </Suspense>
   );
 }
 
