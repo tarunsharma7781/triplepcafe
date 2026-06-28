@@ -289,7 +289,7 @@ export function Experience3D() {
                 console.log("[R3F] Canvas computed w/h:", cs.width, cs.height);
               }}
               style={{
-                background: "transparent",
+                background: "red",
                 position: "absolute",
                 top: 0, left: 0,
                 width: "100%", height: "100%",
