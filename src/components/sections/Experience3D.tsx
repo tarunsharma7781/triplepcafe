@@ -281,7 +281,7 @@ export function Experience3D() {
               dpr={Math.min(typeof window !== "undefined" ? window.devicePixelRatio : 1, 2)}
               gl={{
                 antialias: true,
-                alpha: true,
+                alpha: false,
                 powerPreference: "default",
                 preserveDrawingBuffer: false,
                 failIfMajorPerformanceCaveat: false,
@@ -292,7 +292,7 @@ export function Experience3D() {
                 console.log("[R3F] Canvas computed w/h:", cs.width, cs.height);
               }}
               style={{
-                background: "transparent",
+                background: "#1a1612",
                 position: "absolute",
                 top: 0, left: 0,
                 width: "100%", height: "100%",
